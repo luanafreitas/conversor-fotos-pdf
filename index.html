@@ -45,7 +45,7 @@
 <body>
   <div class="container">
     <h2>Conversor de Fotos para PDF</h2>
-    <p>Selecione suas fotos e escolha uma como cabeçalho:</p>
+    <p>Selecione suas fotos e escolha uma como cabeçalho (será repetido em todas as páginas):</p>
     <input type="file" id="imageInput" accept="image/*" multiple><br>
     <div id="preview"></div>
     <button onclick="gerarPDF()">Gerar PDF</button>
@@ -55,6 +55,7 @@
     const { jsPDF } = window.jspdf;
     let imagens = [];
     let imagemCabecalho = null;
+    let imagemCabecalhoDataURL = null;
 
     document.getElementById('imageInput').addEventListener('change', function (e) {
       imagens = Array.from(e.target.files);
@@ -92,18 +93,31 @@
         reader.readAsDataURL(file);
       });
 
-      const todasImagens = [imagemCabecalho, ...imagens.filter(img => img !== imagemCabecalho)];
+      imagemCabecalhoDataURL = await converterImagem(imagemCabecalho);
+      const outrasImagens = imagens.filter(img => img !== imagemCabecalho);
 
-      for (let i = 0; i < todasImagens.length; i++) {
-        const dataUrl = await converterImagem(todasImagens[i]);
+      for (let i = 0; i < outrasImagens.length; i++) {
+        if (i !== 0) pdf.addPage();
+
+        // Adiciona cabeçalho em cada página
+        const cabecalhoImg = new Image();
+        cabecalhoImg.src = imagemCabecalhoDataURL;
+        await new Promise(res => cabecalhoImg.onload = res);
+        const cabProps = pdf.getImageProperties(cabecalhoImg);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const cabHeight = (cabProps.height * pdfWidth) / cabProps.width;
+        pdf.addImage(imagemCabecalhoDataURL, 'JPEG', 0, 0, pdfWidth, cabHeight);
+
+        // Adiciona a imagem da página
+        const imgDataUrl = await converterImagem(outrasImagens[i]);
         const img = new Image();
-        img.src = dataUrl;
+        img.src = imgDataUrl;
         await new Promise(res => img.onload = res);
         const imgProps = pdf.getImageProperties(img);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        if (i !== 0) pdf.addPage();
-        pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        const remainingHeight = pdf.internal.pageSize.getHeight() - cabHeight;
+        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        const scaledImgHeight = Math.min(imgHeight, remainingHeight);
+        pdf.addImage(imgDataUrl, 'JPEG', 0, cabHeight + 5, pdfWidth, scaledImgHeight);
       }
 
       pdf.save('fotos_com_cabecalho.pdf');
