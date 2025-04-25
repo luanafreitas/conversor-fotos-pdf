@@ -90,21 +90,25 @@
       const larguraMoldura = 160;
       const margemTopo = 12;
       const alturaLinha = 4.5;
-
+    
       doc.setFont("times", "normal");
-      doc.setFontSize(10);
-
-      doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", margemEsq, margemTopo);
-      doc.text("DIRETORA: RITA GOMES", margemEsq, margemTopo + alturaLinha);
-      doc.text("COORDENADORA: NOÊMIA", 115, margemTopo + alturaLinha);
-      doc.text("PROFESSORA: __________________________________", margemEsq, margemTopo + alturaLinha * 2);
-      doc.text("DATA: ____/____/2025", 150, margemTopo + alturaLinha * 2);
-      doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
-
-      // Moldura mais fiel ao original
+      doc.setFontSize(9.5);
+    
+      // Dividir a linha grande em duas para evitar ultrapassar a margem
+      doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL", margemEsq, margemTopo);
+      doc.text("DIVA BATISTA DA SILVA", margemEsq, margemTopo + alturaLinha);
+    
+      doc.text("DIRETORA: RITA GOMES", margemEsq, margemTopo + alturaLinha * 2);
+      doc.text("COORDENADORA: NOÊMIA", 115, margemTopo + alturaLinha * 2);
+      doc.text("PROFESSORA: __________________________________", margemEsq, margemTopo + alturaLinha * 3);
+      doc.text("DATA: ____/____/2025", 150, margemTopo + alturaLinha * 3);
+      doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 4);
+    
+      // Moldura
       doc.setLineWidth(0.4);
-      doc.rect(25, 3, larguraMoldura, 289); // Altura termina quase no rodapé
+      doc.rect(25, 3, larguraMoldura, 289);
     }
+
 
     async function gerarPDF() {
       if (imagens.length === 0) return alert("Selecione ao menos uma imagem.");
