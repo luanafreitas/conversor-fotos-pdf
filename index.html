@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conversor de Fotos para PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+    input[type="file"] {
+      margin-bottom: 10px;
+    }
+    img {
+      max-width: 100px;
+      margin: 5px;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+    img.selected {
+      border-color: #007bff;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Conversor de Fotos para PDF</h2>
+    <p>Selecione suas fotos e escolha uma como cabeçalho:</p>
+    <input type="file" id="imageInput" accept="image/*" multiple><br>
+    <div id="preview"></div>
+    <button onclick="gerarPDF()">Gerar PDF</button>
+  </div>
+
+  <script>
+    const { jsPDF } = window.jspdf;
+    let imagens = [];
+    let imagemCabecalho = null;
+
+    document.getElementById('imageInput').addEventListener('change', function (e) {
+      imagens = Array.from(e.target.files);
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+      imagemCabecalho = null;
+
+      imagens.forEach((img, i) => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const imageElement = document.createElement('img');
+          imageElement.src = event.target.result;
+          imageElement.onclick = () => {
+            document.querySelectorAll('img').forEach(el => el.classList.remove('selected'));
+            imageElement.classList.add('selected');
+            imagemCabecalho = img;
+          };
+          preview.appendChild(imageElement);
+        };
+        reader.readAsDataURL(img);
+      });
+    });
+
+    async function gerarPDF() {
+      if (!imagemCabecalho) {
+        alert('Por favor, selecione uma imagem como cabeçalho.');
+        return;
+      }
+
+      const pdf = new jsPDF();
+
+      const converterImagem = (file) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+
+      const todasImagens = [imagemCabecalho, ...imagens.filter(img => img !== imagemCabecalho)];
+
+      for (let i = 0; i < todasImagens.length; i++) {
+        const dataUrl = await converterImagem(todasImagens[i]);
+        const img = new Image();
+        img.src = dataUrl;
+        await new Promise(res => img.onload = res);
+        const imgProps = pdf.getImageProperties(img);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+        if (i !== 0) pdf.addPage();
+        pdf.addImage(dataUrl, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      }
+
+      pdf.save('fotos_com_cabecalho.pdf');
+    }
+  </script>
+</body>
+</html>
