@@ -88,7 +88,7 @@
     function desenharCabecalho(doc) {
       const margemEsq = 30;
       const larguraMoldura = 160;
-      const margemTopo = 12;
+      const margemTopo = 15;
       const alturaLinha = 4.5;
 
       doc.setFont("times", "normal");
@@ -102,8 +102,8 @@
       doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
 
       // Moldura mais fiel ao original
-      doc.setLineWidth(0.4);
-      doc.rect(25, 3, larguraMoldura, 263); // Altura termina quase no rodapé
+      doc.setLineWidth(1.5);
+      doc.rect(25, 8, larguraMoldura, 263); // Altura termina quase no rodapé
     }
 
     async function gerarPDF() {
@@ -119,7 +119,7 @@
 
         // Imagem mais alta e alinhada ao conteúdo
         const x = 27;
-        const y = 30;
+        const y = 35;
         const largura = 155;
         const altura = 230;
 
