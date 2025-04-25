@@ -1,126 +1,105 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conversor de Fotos para PDF</title>
+  <meta charset="UTF-8">
+  <title>Conversor de Foto para PDF com Cabeçalho</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
-      padding: 20px;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 600px;
-      margin: auto;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 2rem;
     }
     input[type="file"] {
-      margin-bottom: 10px;
+      margin: 1rem 0;
     }
-    img {
-      max-width: 100px;
-      margin: 5px;
-      border: 2px solid transparent;
-      cursor: pointer;
+    .preview {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
     }
-    img.selected {
-      border-color: #007bff;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    .preview img {
+      width: 120px;
+      height: auto;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      padding: 4px;
+      background: #f9f9f9;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Conversor de Fotos para PDF</h2>
-    <p>Selecione suas fotos e escolha uma como cabeçalho (será repetido em todas as páginas):</p>
-    <input type="file" id="imageInput" accept="image/*" multiple><br>
-    <div id="preview"></div>
-    <button onclick="gerarPDF()">Gerar PDF</button>
-  </div>
+  <h1>Converter Fotos em PDF com Cabeçalho Escolar</h1>
+  <input type="file" id="imageUpload" accept="image/*" multiple>
+  <button onclick="gerarPDF()">Gerar PDF</button>
+  <div class="preview" id="preview"></div>
 
   <script>
     const { jsPDF } = window.jspdf;
+    const imageUpload = document.getElementById("imageUpload");
+    const preview = document.getElementById("preview");
     let imagens = [];
-    let imagemCabecalho = null;
-    let imagemCabecalhoDataURL = null;
 
-    document.getElementById('imageInput').addEventListener('change', function (e) {
+    imageUpload.addEventListener("change", (e) => {
       imagens = Array.from(e.target.files);
-      const preview = document.getElementById('preview');
-      preview.innerHTML = '';
-      imagemCabecalho = null;
-
-      imagens.forEach((img, i) => {
+      preview.innerHTML = "";
+      imagens.forEach(img => {
         const reader = new FileReader();
-        reader.onload = function (event) {
-          const imageElement = document.createElement('img');
-          imageElement.src = event.target.result;
-          imageElement.onclick = () => {
-            document.querySelectorAll('img').forEach(el => el.classList.remove('selected'));
-            imageElement.classList.add('selected');
-            imagemCabecalho = img;
-          };
-          preview.appendChild(imageElement);
+        reader.onload = () => {
+          const el = document.createElement("img");
+          el.src = reader.result;
+          preview.appendChild(el);
         };
         reader.readAsDataURL(img);
       });
     });
 
+    function desenharCabecalho(doc) {
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("ESCOLA MUNICIPAL PROFESSORA DIVA BATISTA DA SILVA", 15, 20);
+      doc.text("DIRETORA: RITA GOMES", 15, 27);
+      doc.text("COORDENADORA: NOEMIA PEREIRA", 120, 27);
+      doc.text("PROFESSORA:", 15, 34);
+      doc.text("____________________", 43, 34);
+      doc.text("DATA:", 140, 34);
+      doc.text("____ / ____ / ______", 155, 34);
+      doc.text("ALUNO(A): _________________________________________________________", 15, 41);
+
+      // Moldura
+      doc.setLineWidth(0.5);
+      doc.rect(10, 10, 190, 277); // borda A4
+    }
+
     async function gerarPDF() {
-      if (!imagemCabecalho) {
-        alert('Por favor, selecione uma imagem como cabeçalho.');
-        return;
-      }
+      if (imagens.length === 0) return alert("Selecione ao menos uma imagem.");
 
       const pdf = new jsPDF();
 
-      const converterImagem = (file) => new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(file);
-      });
+      for (let i = 0; i < imagens.length; i++) {
+        if (i > 0) pdf.addPage();
+        desenharCabecalho(pdf);
 
-      imagemCabecalhoDataURL = await converterImagem(imagemCabecalho);
-      const outrasImagens = imagens.filter(img => img !== imagemCabecalho);
+        const img = await carregarImagem(imagens[i]);
 
-      for (let i = 0; i < outrasImagens.length; i++) {
-        if (i !== 0) pdf.addPage();
-
-        // Adiciona cabeçalho em cada página
-        const cabecalhoImg = new Image();
-        cabecalhoImg.src = imagemCabecalhoDataURL;
-        await new Promise(res => cabecalhoImg.onload = res);
-        const cabProps = pdf.getImageProperties(cabecalhoImg);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const cabHeight = (cabProps.height * pdfWidth) / cabProps.width;
-        pdf.addImage(imagemCabecalhoDataURL, 'JPEG', 0, 0, pdfWidth, cabHeight);
-
-        // Adiciona a imagem da página
-        const imgDataUrl = await converterImagem(outrasImagens[i]);
-        const img = new Image();
-        img.src = imgDataUrl;
-        await new Promise(res => img.onload = res);
-        const imgProps = pdf.getImageProperties(img);
-        const remainingHeight = pdf.internal.pageSize.getHeight() - cabHeight;
-        const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        const scaledImgHeight = Math.min(imgHeight, remainingHeight);
-        pdf.addImage(imgDataUrl, 'JPEG', 0, cabHeight + 5, pdfWidth, scaledImgHeight);
+        const larguraMax = 180;
+        const alturaMax = 230;
+        const x = 15;
+        const y = 50;
+        pdf.addImage(img, "JPEG", x, y, larguraMax, alturaMax);
       }
 
-      pdf.save('tarefa.pdf');
+      pdf.save("fotos-com-cabecalho.pdf");
+    }
+
+    function carregarImagem(arquivo) {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(arquivo);
+      });
     }
   </script>
 </body>
