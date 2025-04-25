@@ -86,21 +86,22 @@
     });
 
     function desenharCabecalho(doc) {
+      const margemEsq = 20;
+      const margemTopo = 35;
+      const alturaLinha = 6.8;
       doc.setFont("times", "normal");
       doc.setFontSize(11);
-      const startY = 20;
-      const lineHeight = 7;
 
-      doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", 15, startY);
-      doc.text("DIRETORA: RITA GOMES", 15, startY + lineHeight);
-      doc.text("COORDENADORA: NOÊMIA", 125, startY + lineHeight);
-      doc.text("PROFESSORA: __________________________________", 15, startY + lineHeight * 2);
-      doc.text("DATA: ____/____/____", 150, startY + lineHeight * 2);
-      doc.text("ALUNO(A): ____________________________________________________", 15, startY + lineHeight * 3);
+      doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", margemEsq, margemTopo);
+      doc.text("DIRETORA: RITA GOMES", margemEsq, margemTopo + alturaLinha);
+      doc.text("COORDENADORA: NOÊMIA", 115, margemTopo + alturaLinha);
+      doc.text("PROFESSORA: __________________________________", margemEsq, margemTopo + alturaLinha * 2);
+      doc.text("DATA: ____/____/2025", 150, margemTopo + alturaLinha * 2);
+      doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
 
-      // Moldura no tamanho exato da folha A4 com margem de 10mm
+      // Moldura com margens de 20mm lateral, 35mm topo, 15mm inferior
       doc.setLineWidth(0.4);
-      doc.rect(10, 10, 190, 277);
+      doc.rect(20, 10, 170, 277);
     }
 
     async function gerarPDF() {
@@ -114,12 +115,12 @@
 
         const img = await carregarImagem(imagens[i]);
 
-        // Espaço útil abaixo do cabeçalho (ajustado para começar após 50mm)
-        const x = 15;
-        const y = 50;
-        const larguraMax = 180;
-        const alturaMax = 237; // 287 altura total - 50 de topo
-        pdf.addImage(img, "JPEG", x, y, larguraMax, alturaMax);
+        // Inserir imagem dentro da área útil (ajustado com margens reais)
+        const x = 25;
+        const y = 63; // Começa após o cabeçalho real (~35mm + 3 linhas)
+        const largura = 160;
+        const altura = 220;
+        pdf.addImage(img, "JPEG", x, y, largura, altura);
       }
 
       pdf.save("fotos-com-cabecalho.pdf");
