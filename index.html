@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Conversor de Foto para PDF</title>
+  <title>Conversor de Foto para PDF com Cabeçalho</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
   <style>
@@ -86,23 +86,24 @@
     });
 
     function desenharCabecalho(doc) {
-      const margemEsq = 23; // Ajuste para alinhar bem
-      const margemTopo = 15; 
-      const alturaLinha = 5;
+      const margemEsq = 25;
+      const larguraMoldura = 160;
+      const margemTopo = 12;
+      const alturaLinha = 4.5;
 
       doc.setFont("times", "normal");
       doc.setFontSize(10);
 
       doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", margemEsq, margemTopo);
       doc.text("DIRETORA: RITA GOMES", margemEsq, margemTopo + alturaLinha);
-      doc.text("COORDENADORA: NOÊMIA", 120, margemTopo + alturaLinha);
+      doc.text("COORDENADORA: NOÊMIA", 115, margemTopo + alturaLinha);
       doc.text("PROFESSORA: __________________________________", margemEsq, margemTopo + alturaLinha * 2);
-      doc.text("DATA: ____/____/2025", 155, margemTopo + alturaLinha * 2);
+      doc.text("DATA: ____/____/2025", 150, margemTopo + alturaLinha * 2);
       doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
 
-      // Moldura respeitando margens corretas
+      // Moldura mais fiel ao original
       doc.setLineWidth(0.4);
-      doc.rect(22.5, 7.5, 157.5, 264.5);
+      doc.rect(25, 3, larguraMoldura, 289); // Altura termina quase no rodapé
     }
 
     async function gerarPDF() {
@@ -116,11 +117,11 @@
 
         const img = await carregarImagem(imagens[i]);
 
-        // Posicionar a imagem dentro da área útil
-        const x = 27; // Um pouco de espaço interno
-        const y = 42; 
-        const largura = 148; 
-        const altura = 210;
+        // Imagem mais alta e alinhada ao conteúdo
+        const x = 27;
+        const y = 35;
+        const largura = 155;
+        const altura = 220;
         pdf.addImage(img, "JPEG", x, y, largura, altura);
       }
 
