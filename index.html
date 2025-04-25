@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Conversor de Foto para PDF</title>
+  <title>Conversor de Foto para PDF com Cabeçalho</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
   <style>
@@ -86,22 +86,24 @@
     });
 
     function desenharCabecalho(doc) {
-      const margemEsq = 20;
+      const margemEsq = 22;
+      const larguraTotal = 165;
       const margemTopo = 20;
       const alturaLinha = 5;
+
       doc.setFont("times", "normal");
       doc.setFontSize(10);
 
       doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", margemEsq, margemTopo);
       doc.text("DIRETORA: RITA GOMES", margemEsq, margemTopo + alturaLinha);
-      doc.text("COORDENADORA: NOÊMIA", 115, margemTopo + alturaLinha);
+      doc.text("COORDENADORA: NOÊMIA", 118, margemTopo + alturaLinha);
       doc.text("PROFESSORA: __________________________________", margemEsq, margemTopo + alturaLinha * 2);
-      doc.text("DATA: ____/____/2025", 150, margemTopo + alturaLinha * 2);
+      doc.text("DATA: ____/____/2025", 152, margemTopo + alturaLinha * 2);
       doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
 
-      // Moldura ajustada com margem inferior mais fiel ao PDF
+      // Moldura ajustada
       doc.setLineWidth(0.4);
-      doc.rect(20, 10, 170, 280); // y: 10, altura: 280 (encerra em 290)
+      doc.rect(22, 7, larguraTotal, 283); // começa em y=7, termina em 290mm
     }
 
     async function gerarPDF() {
@@ -115,11 +117,10 @@
 
         const img = await carregarImagem(imagens[i]);
 
-        // Ajuste da imagem para não ultrapassar a margem inferior
-        const x = 25;
-        const y = 43;
-        const largura = 160;
-        const altura = 210;
+        const x = 27;
+        const y = 42; // após cabeçalho
+        const largura = 155;
+        const altura = 205; // cabe perfeitamente sem encostar na borda inferior
         pdf.addImage(img, "JPEG", x, y, largura, altura);
       }
 
