@@ -59,7 +59,7 @@
   </style>
 </head>
 <body>
-  <h1>Converter Fotos em PDF</h1>
+  <h1>Converter Fotos em PDF com Cabeçalho Escolar</h1>
   <input type="file" id="imageUpload" accept="image/*" multiple>
   <br>
   <button onclick="gerarPDF()">Gerar PDF</button>
@@ -87,8 +87,8 @@
 
     function desenharCabecalho(doc) {
       const margemEsq = 20;
-      const margemTopo = 35;
-      const alturaLinha = 6.8;
+      const margemTopo = 20;
+      const alturaLinha = 5.5;
       doc.setFont("times", "normal");
       doc.setFontSize(11);
 
@@ -99,9 +99,8 @@
       doc.text("DATA: ____/____/2025", 150, margemTopo + alturaLinha * 2);
       doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
 
-      // Moldura com margens de 20mm lateral, 35mm topo, 15mm inferior
       doc.setLineWidth(0.4);
-      doc.rect(20, 10, 170, 277);
+      doc.rect(20, 5, 170, 287); // Moldura ajustada
     }
 
     async function gerarPDF() {
@@ -115,11 +114,11 @@
 
         const img = await carregarImagem(imagens[i]);
 
-        // Inserir imagem dentro da área útil (ajustado com margens reais)
+        // Ajustes de imagem
         const x = 25;
-        const y = 63; // Começa após o cabeçalho real (~35mm + 3 linhas)
+        const y = 45;
         const largura = 160;
-        const altura = 220;
+        const altura = 210;
         pdf.addImage(img, "JPEG", x, y, largura, altura);
       }
 
