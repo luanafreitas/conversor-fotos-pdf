@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Conversor de Foto para PDF</title>
+  <title>Conversor de Foto para PDF com Cabeçalho</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
   <style>
@@ -86,9 +86,8 @@
     });
 
     function desenharCabecalho(doc) {
-      const margemEsq = 22;
-      const larguraTotal = 165;
-      const margemTopo = 20;
+      const margemEsq = 23; // Ajuste para alinhar bem
+      const margemTopo = 15; 
       const alturaLinha = 5;
 
       doc.setFont("times", "normal");
@@ -96,14 +95,14 @@
 
       doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", margemEsq, margemTopo);
       doc.text("DIRETORA: RITA GOMES", margemEsq, margemTopo + alturaLinha);
-      doc.text("COORDENADORA: NOÊMIA", 118, margemTopo + alturaLinha);
+      doc.text("COORDENADORA: NOÊMIA", 120, margemTopo + alturaLinha);
       doc.text("PROFESSORA: __________________________________", margemEsq, margemTopo + alturaLinha * 2);
-      doc.text("DATA: ____/____/2025", 152, margemTopo + alturaLinha * 2);
+      doc.text("DATA: ____/____/2025", 155, margemTopo + alturaLinha * 2);
       doc.text("ALUNO(A): ____________________________________________________", margemEsq, margemTopo + alturaLinha * 3);
 
-      // Moldura ajustada
+      // Moldura respeitando margens corretas
       doc.setLineWidth(0.4);
-      doc.rect(22, 7, larguraTotal, 283); // começa em y=7, termina em 290mm
+      doc.rect(22.5, 7.5, 157.5, 264.5);
     }
 
     async function gerarPDF() {
@@ -117,10 +116,11 @@
 
         const img = await carregarImagem(imagens[i]);
 
-        const x = 27;
-        const y = 42; // após cabeçalho
-        const largura = 155;
-        const altura = 205; // cabe perfeitamente sem encostar na borda inferior
+        // Posicionar a imagem dentro da área útil
+        const x = 27; // Um pouco de espaço interno
+        const y = 42; 
+        const largura = 148; 
+        const altura = 210;
         pdf.addImage(img, "JPEG", x, y, largura, altura);
       }
 
