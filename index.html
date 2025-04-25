@@ -59,7 +59,7 @@
   </style>
 </head>
 <body>
-  <h1>Converter Fotos em PDF</h1>
+  <h1>Converter Fotos em PDF com Cabeçalho Escolar</h1>
   <input type="file" id="imageUpload" accept="image/*" multiple>
   <br>
   <button onclick="gerarPDF()">Gerar PDF</button>
@@ -87,25 +87,23 @@
 
     function desenharCabecalho(doc) {
       doc.setFont("times", "normal");
-      doc.setFontSize(12);
-      doc.text("ESCOLA MUNICIPAL PROFESSORA DIVA BATISTA DA SILVA", 15, 20);
-      doc.text("DIRETORA: RITA GOMES", 15, 27);
-      doc.text("COORDENADORA: NOEMIA PEREIRA", 120, 27);
-      doc.text("PROFESSORA:", 15, 34);
-      doc.text("____________________", 43, 34);
-      doc.text("DATA:", 140, 34);
-      doc.text("____ / ____ / ______", 155, 34);
-      doc.text("ALUNO(A): _________________________________________________________", 15, 41);
+      doc.setFontSize(11);
+      doc.text("ESCOLA MUNICIPAL DE ENSINO FUNDAMENTAL DIVA BATISTA DA SILVA", 15, 15);
+      doc.text("DIRETORA: RITA GOMES", 15, 22);
+      doc.text("COORDENADORA: NOÊMIA", 125, 22);
+      doc.text("PROFESSORA: __________________________________", 15, 29);
+      doc.text("DATA: ____/____/2025", 150, 29);
+      doc.text("ALUNO(A): ____________________________________________________", 15, 36);
 
-      // Moldura
-      doc.setLineWidth(0.5);
+      // Moldura estilo folha
+      doc.setLineWidth(0.4);
       doc.rect(10, 10, 190, 277);
     }
 
     async function gerarPDF() {
       if (imagens.length === 0) return alert("Selecione ao menos uma imagem.");
 
-      const pdf = new jsPDF();
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
       for (let i = 0; i < imagens.length; i++) {
         if (i > 0) pdf.addPage();
@@ -113,11 +111,12 @@
 
         const img = await carregarImagem(imagens[i]);
 
+        // Tamanho da imagem respeitando margem do cabeçalho
         const larguraMax = 180;
-        const alturaMax = 230;
+        const alturaDisponivel = 250 - 45; // Altura total - cabeçalho (~45mm)
         const x = 15;
-        const y = 50;
-        pdf.addImage(img, "JPEG", x, y, larguraMax, alturaMax);
+        const y = 45;
+        pdf.addImage(img, "JPEG", x, y, larguraMax, alturaDisponivel);
       }
 
       pdf.save("fotos-com-cabecalho.pdf");
